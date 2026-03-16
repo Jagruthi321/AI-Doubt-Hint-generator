@@ -9,10 +9,11 @@ import com.app.doubthint.state.HintUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class HintViewModel(
-    private val repository: HintRepository = HintRepository(NetworkModule.aiApiService)
+    private val repository: HintRepository = HintRepository()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HintUiState())
@@ -74,33 +75,40 @@ class HintViewModel(
         val nextLevel = (current.currentHintLevel + 1).coerceAtMost(maxHintLevel)
 
         viewModelScope.launch {
-            _uiState.value = current.copy(isLoading = true, errorMessage = null)
-            val result = repository.getHint(current.question, nextLevel)
-            _uiState.value = result.fold(
-                onSuccess = { response ->
-                    val validationError = validateHintResponse(response.concept, response.hint)
-                    if (validationError != null) {
-                        return@fold current.copy(
+            _uiState.value = current.copy(
+                isLoading = true,
+                errorMessage = null,
+                currentHintLevel = nextLevel,
+                hintText = ""
+            )
+
+            repository.streamHint(current.question, nextLevel).collectLatest { result ->
+                _uiState.value = result.fold(
+                    onSuccess = { response ->
+                        val validationError = validateHintResponse(response.concept, response.hint)
+                        if (validationError != null) {
+                            return@fold _uiState.value.copy(
+                                isLoading = false,
+                                errorMessage = validationError
+                            )
+                        }
+
+                        _uiState.value.copy(
+                            concept = response.concept.ifBlank { _uiState.value.concept },
+                            hintText = response.hint,
+                            formula = response.formula.ifBlank { _uiState.value.formula },
                             isLoading = false,
-                            errorMessage = validationError
+                            errorMessage = null
+                        )
+                    },
+                    onFailure = { error ->
+                        _uiState.value.copy(
+                            isLoading = false,
+                            errorMessage = error.message ?: "Unable to reach AI service"
                         )
                     }
-                    current.copy(
-                        currentHintLevel = nextLevel,
-                        concept = response.concept,
-                        hintText = response.hint,
-                        formula = response.formula,
-                        isLoading = false,
-                        errorMessage = null
-                    )
-                },
-                onFailure = { error ->
-                    current.copy(
-                        isLoading = false,
-                        errorMessage = error.message ?: "Unable to reach AI service"
-                    )
-                }
-            )
+                )
+            }
         }
     }
 

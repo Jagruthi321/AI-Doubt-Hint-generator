@@ -11,6 +11,8 @@ android {
         }
     }
 
+    val openAiApiKey = providers.gradleProperty("OPENAI_API_KEY").orNull ?: ""
+
     defaultConfig {
         applicationId = "com.example.ai_doubt_hint_generator"
         minSdk = 24
@@ -19,6 +21,8 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "OPENAI_API_KEY", "\"$openAiApiKey\"")
     }
 
     buildTypes {
@@ -36,6 +40,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

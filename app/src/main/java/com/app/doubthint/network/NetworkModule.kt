@@ -6,7 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
-private const val BASE_URL = "https://api.example.com/" // TODO: replace with real AI API base URL
+private const val BASE_URL = "https://api.openai.com/v1/"
 
 object NetworkModule {
 
@@ -16,11 +16,12 @@ object NetworkModule {
         }
     }
 
-    private val okHttpClient: OkHttpClient by lazy {
+    val okHttpClient: OkHttpClient by lazy {
         OkHttpClient.Builder()
             .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
+            // Streaming responses can take longer than normal API calls
+            .readTimeout(0, TimeUnit.SECONDS)
             .writeTimeout(30, TimeUnit.SECONDS)
             .build()
     }
