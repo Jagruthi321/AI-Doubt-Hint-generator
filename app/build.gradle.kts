@@ -11,7 +11,9 @@ android {
         }
     }
 
-    val openAiApiKey = providers.gradleProperty("OPENAI_API_KEY").orNull ?: ""
+    val openAiApiKey = providers.gradleProperty("OPENAI_API_KEY").orNull
+        ?: providers.environmentVariable("OPENAI_API_KEY").orNull
+        ?: ""
 
     defaultConfig {
         applicationId = "com.example.ai_doubt_hint_generator"
