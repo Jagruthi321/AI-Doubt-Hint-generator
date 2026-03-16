@@ -1,3 +1,17 @@
+# AI Execution Instructions
+
+You are implementing the project defined in spec.md.
+
+Rules:
+1. Read spec.md before writing any code.
+2. Complete ONLY the first unchecked task in this todo list.
+3. After completing the task:
+    - implement the code
+    - explain the changes
+    - mark the task as completed.
+4. Do NOT skip tasks.
+5. Ensure code compiles.
+
 \# AI Doubt Hint Generator — Development Checklist (todo.md)
 
 This checklist provides a \*\*step-by-step implementation guide\*\* for building the Android application.  
