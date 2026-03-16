@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    id("org.jetbrains.kotlin.android")
     alias(libs.plugins.kotlin.compose)
 }
 
@@ -43,6 +42,7 @@ android {
 dependencies {
     // Kotlin BOM (align Kotlin stdlib/coroutines runtime)
     implementation(platform(libs.kotlin.bom))
+    implementation("org.jetbrains.kotlin:kotlin-stdlib")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
 
