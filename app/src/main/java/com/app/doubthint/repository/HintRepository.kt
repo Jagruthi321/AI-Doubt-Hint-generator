@@ -8,6 +8,8 @@ import com.app.doubthint.model.SolutionRequest
 import com.app.doubthint.model.SolutionResponse
 import com.app.doubthint.network.AiApiService
 import kotlinx.coroutines.CancellationException
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class HintRepository(
     private val api: AiApiService
@@ -33,6 +35,10 @@ class HintRepository(
             Result.success(block())
         } catch (e: CancellationException) {
             throw e
+        } catch (e: UnknownHostException) {
+            Result.failure(IllegalStateException("Network connection lost", e))
+        } catch (e: SocketTimeoutException) {
+            Result.failure(IllegalStateException("Unable to reach AI service", e))
         } catch (e: Exception) {
             Result.failure(e)
         }

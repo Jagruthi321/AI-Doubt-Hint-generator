@@ -29,7 +29,7 @@ fun HintScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Hint ${state.currentHintLevel}",
+            text = "Hint ${state.currentHintLevel.coerceIn(1, 6)}/6",
             textAlign = TextAlign.Center
         )
 
@@ -68,7 +68,7 @@ fun HintScreen(
             enabled = !state.isLoading,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Show Solution")
+            Text(if (state.currentHintLevel >= 6) "Show Solution" else "Show Solution (early)")
         }
         Button(
             onClick = { /* Try solving – no intent, just back to thinking */ },

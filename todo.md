@@ -106,30 +106,30 @@ Add dependencies to \*\*build.gradle\*\*
 Create \*\*AI API Service Interface\*\*
 
 Tasks:  
-\- \[ \] Define \*\*generateHint endpoint\*\*  
-\- \[ \] Define \*\*generateSolution endpoint\*\*  
-\- \[ \] Define \*\*generateSimilarQuestions endpoint\*\*
+\- [x] Define \*\*generateHint endpoint\*\*  
+\- [x] Define \*\*generateSolution endpoint\*\*  
+\- [x] Define \*\*generateSimilarQuestions endpoint\*\*
 
 \---
 
 \#\# Retrofit Setup  
-\- \[ \] Create Retrofit instance  
-\- \[ \] Configure base URL  
-\- \[ \] Add converter factory  
-\- \[ \] Configure OkHttp client  
-\- \[ \] Add logging interceptor
+\- [x] Create Retrofit instance  
+\- [x] Configure base URL  
+\- [x] Add converter factory  
+\- [x] Configure OkHttp client  
+\- [x] Add logging interceptor
 
 \---
 
 \#\# Network Models  
 Create request/response models.
 
-\- \[ \] HintRequest  
-\- \[ \] HintResponse  
-\- \[ \] SolutionRequest  
-\- \[ \] SolutionResponse  
-\- \[ \] SimilarQuestionRequest  
-\- \[ \] SimilarQuestionResponse
+\- [x] HintRequest  
+\- [x] HintResponse  
+\- [x] SolutionRequest  
+\- [x] SolutionResponse  
+\- [x] SimilarQuestionRequest  
+\- [x] SimilarQuestionResponse
 
 \---
 
@@ -143,12 +143,12 @@ Responsibilities:
 
 Tasks:
 
-\- \[ \] Create \`HintRepository\`  
-\- \[ \] Implement \`getHint()\`  
-\- \[ \] Implement \`getSolution()\`  
-\- \[ \] Implement \`getSimilarQuestions()\`  
-\- \[ \] Handle API errors  
-\- \[ \] Return clean domain models
+\- [x] Create \`HintRepository\`  
+\- [x] Implement \`getHint()\`  
+\- [x] Implement \`getSolution()\`  
+\- [x] Implement \`getSimilarQuestions()\`  
+\- [x] Handle API errors  
+\- [x] Return clean domain models
 
 \---
 
@@ -162,13 +162,13 @@ ViewModel responsibilities:
 
 Tasks:
 
-\- \[ \] Create \`HintViewModel\`  
-\- \[ \] Define UI states  
-\- \[ \] Handle question submission  
-\- \[ \] Handle hint requests  
-\- \[ \] Handle solution requests  
-\- \[ \] Handle similar question requests  
-\- \[ \] Manage hint counter (max \= 6\)
+\- [x] Create \`HintViewModel\`  
+\- [x] Define UI states  
+\- [x] Handle question submission  
+\- [x] Handle hint requests  
+\- [x] Handle solution requests  
+\- [x] Handle similar question requests  
+\- [x] Manage hint counter (max \= 6\)
 
 \---
 
@@ -180,11 +180,11 @@ Tasks:
 
 Create \*\*Intent classes\*\*
 
-\- \[ \] SubmitQuestionIntent  
-\- \[ \] RequestHintIntent  
-\- \[ \] RequestSolutionIntent  
-\- \[ \] GenerateSimilarQuestionsIntent  
-\- \[ \] RetryNetworkIntent
+\- [x] SubmitQuestionIntent  
+\- [x] RequestHintIntent  
+\- [x] RequestSolutionIntent  
+\- [x] GenerateSimilarQuestionsIntent  
+\- [x] RetryNetworkIntent
 
 \---
 
@@ -196,12 +196,12 @@ Create \`HintUIState\`
 
 Possible states:
 
-\- \[ \] Idle  
-\- \[ \] Loading  
-\- \[ \] HintReceived  
-\- \[ \] SolutionReceived  
-\- \[ \] SimilarQuestionsLoaded  
-\- \[ \] ErrorState
+\- [x] Idle  
+\- [x] Loading  
+\- [x] HintReceived  
+\- [x] SolutionReceived  
+\- [x] SimilarQuestionsLoaded  
+\- [x] ErrorState
 
 \---
 
@@ -211,10 +211,10 @@ Possible states:
 
 Tasks:
 
-\- \[ \] Create question input field  
-\- \[ \] Add submit button  
-\- \[ \] Validate empty input  
-\- \[ \] Trigger question analysis
+\- [x] Create question input field  
+\- [x] Add submit button  
+\- [x] Validate empty input  
+\- [x] Trigger question analysis
 
 UI Elements:
 
@@ -228,11 +228,11 @@ UI Elements:
 
 Tasks:
 
-\- \[ \] Display hint text  
-\- \[ \] Show hint number (1–6)  
-\- \[ \] Add \*\*Next Hint\*\* button  
-\- \[ \] Add \*\*Show Solution\*\* button  
-\- \[ \] Add \*\*Try Solving\*\* button
+\- [x] Display hint text  
+\- [x] Show hint number (1–6)  
+\- [x] Add \*\*Next Hint\*\* button  
+\- [x] Add \*\*Show Solution\*\* button  
+\- [x] Add \*\*Try Solving\*\* button
 
 \---
 
@@ -240,10 +240,10 @@ Tasks:
 
 Tasks:
 
-\- \[ \] Display step-by-step solution  
-\- \[ \] Display concept explanation  
-\- \[ \] Display formulas used  
-\- \[ \] Display common mistakes
+\- [x] Display step-by-step solution  
+\- [x] Display concept explanation  
+\- [x] Display formulas used  
+\- [x] Display common mistakes
 
 \---
 
@@ -251,9 +251,9 @@ Tasks:
 
 Tasks:
 
-\- \[ \] Display generated questions  
-\- \[ \] Show question list  
-\- \[ \] Allow copy or reuse
+\- [x] Display generated questions  
+\- [x] Show question list  
+\- [x] Allow copy or reuse
 
 \---
 
@@ -263,11 +263,11 @@ Implement navigation between screens.
 
 Tasks:
 
-\- \[ \] Add Navigation Compose  
-\- \[ \] Create navigation routes  
-\- \[ \] Navigate Home → Hint  
-\- \[ \] Navigate Hint → Solution  
-\- \[ \] Navigate Solution → Similar Questions
+\- [x] Add Navigation Compose  
+\- [x] Create navigation routes  
+\- [x] Navigate Home → Hint  
+\- [x] Navigate Hint → Solution  
+\- [x] Navigate Solution → Similar Questions
 
 \---
 
@@ -275,11 +275,11 @@ Tasks:
 
 Implement logic:
 
-\- \[ \] Initialize hint counter \= 1  
-\- \[ \] Allow max hints \= 6  
-\- \[ \] Increment hint counter on request  
-\- \[ \] Enable solution button after hint 6  
-\- \[ \] Allow early solution request
+\- [x] Initialize hint counter \= 1  
+\- [x] Allow max hints \= 6  
+\- [x] Increment hint counter on request  
+\- [x] Enable solution button after hint 6  
+\- [x] Allow early solution request
 
 \---
 
@@ -289,9 +289,9 @@ Ensure proper input.
 
 Tasks:
 
-\- \[ \] Detect empty input  
-\- \[ \] Detect extremely short question  
-\- \[ \] Show validation messages
+\- [x] Detect empty input  
+\- [x] Detect extremely short question  
+\- [x] Show validation messages
 
 Example messages:
 
@@ -306,9 +306,9 @@ Example messages:
 
 Tasks:
 
-\- \[ \] Handle timeout  
-\- \[ \] Handle no internet  
-\- \[ \] Handle API failure
+\- [x] Handle timeout  
+\- [x] Handle no internet  
+\- [x] Handle API failure
 
 UI Messages:
 
@@ -321,9 +321,9 @@ UI Messages:
 
 Tasks:
 
-\- \[ \] Handle malformed responses  
-\- \[ \] Handle empty responses  
-\- \[ \] Show fallback error message
+\- [x] Handle malformed responses  
+\- [x] Handle empty responses  
+\- [x] Show fallback error message
 
 \---
 
@@ -332,7 +332,7 @@ Tasks:
 Tasks:
 
 \- \[ \] Detect non-math/non-physics question  
-\- \[ \] Display warning message
+\- [x] Display warning message
 
 \---
 
@@ -340,9 +340,9 @@ Tasks:
 
 Tasks:
 
-\- \[ \] Show loading spinner during API calls  
-\- \[ \] Disable buttons during loading  
-\- \[ \] Show "Analyzing question..." message
+\- [x] Show loading spinner during API calls  
+\- [x] Disable buttons during loading  
+\- [x] Show "Analyzing question..." message
 
 \---
 
@@ -355,8 +355,8 @@ Ensure AI only responds to:
 
 Tasks:
 
-\- \[ \] Validate subject classification  
-\- \[ \] Reject unrelated questions
+\- [x] Validate subject classification  
+\- [x] Reject unrelated questions
 
 \---
 
