@@ -8,9 +8,12 @@ import com.app.doubthint.network.openai.OpenAiHttpException
 import com.app.doubthint.network.openai.OpenAiStreamingClient
 import com.example.ai_doubt_hint_generator.BuildConfig
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.withContext
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import kotlin.math.min
@@ -29,52 +32,62 @@ class HintRepository(
         var lastConcept = ""
         var lastFormula = ""
 
-        retryWithBackoff {
-            for (delta in streamingClient.streamResponsesApiText(model = "gpt-4.1-mini", input = prompt)) {
-                builder.append(delta)
-                val parsed = parseHintResponseBestEffort(builder.toString())
-                if (parsed != null) {
-                    if (parsed.concept.isNotBlank()) lastConcept = parsed.concept
-                    if (parsed.formula.isNotBlank()) lastFormula = parsed.formula
-
-                    val concept = parsed.concept.ifBlank { lastConcept }
-                    val formula = parsed.formula.ifBlank { lastFormula }
-                    if (parsed.hint.isNotBlank()) {
-                        emit(Result.success(parsed.copy(concept = concept, formula = formula)))
-                    }
-                }
-            }
-        }
-    }
-
-    suspend fun getSolution(question: String): Result<SolutionResponse> =
-        safeCallSuspend {
-            val prompt = buildSolutionPrompt(question)
-            val builder = StringBuilder()
-
+        try {
             retryWithBackoff {
                 for (delta in streamingClient.streamResponsesApiText(model = "gpt-4.1-mini", input = prompt)) {
                     builder.append(delta)
+                    val parsed = parseHintResponseBestEffort(builder.toString())
+                    if (parsed != null) {
+                        if (parsed.concept.isNotBlank()) lastConcept = parsed.concept
+                        if (parsed.formula.isNotBlank()) lastFormula = parsed.formula
+
+                        val concept = parsed.concept.ifBlank { lastConcept }
+                        val formula = parsed.formula.ifBlank { lastFormula }
+                        if (parsed.hint.isNotBlank()) {
+                            emit(Result.success(parsed.copy(concept = concept, formula = formula)))
+                        }
+                    }
                 }
             }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            emit(safeCallExceptionToResult(e))
+        }
+    }.flowOn(Dispatchers.IO)
 
-            parseSolutionResponse(builder.toString())
-                ?: throw IllegalStateException("Received an invalid response from AI service")
+    suspend fun getSolution(question: String): Result<SolutionResponse> =
+        safeCallSuspend {
+            withContext(Dispatchers.IO) {
+                val prompt = buildSolutionPrompt(question)
+                val builder = StringBuilder()
+
+                retryWithBackoff {
+                    for (delta in streamingClient.streamResponsesApiText(model = "gpt-4.1-mini", input = prompt)) {
+                        builder.append(delta)
+                    }
+                }
+
+                parseSolutionResponse(builder.toString())
+                    ?: throw IllegalStateException("Received an invalid response from AI service")
+            }
         }
 
     suspend fun getSimilarQuestions(concept: String): Result<SimilarQuestionResponse> =
         safeCallSuspend {
-            val prompt = buildSimilarQuestionsPrompt(concept)
-            val builder = StringBuilder()
+            withContext(Dispatchers.IO) {
+                val prompt = buildSimilarQuestionsPrompt(concept)
+                val builder = StringBuilder()
 
-            retryWithBackoff {
-                for (delta in streamingClient.streamResponsesApiText(model = "gpt-4.1-mini", input = prompt)) {
-                    builder.append(delta)
+                retryWithBackoff {
+                    for (delta in streamingClient.streamResponsesApiText(model = "gpt-4.1-mini", input = prompt)) {
+                        builder.append(delta)
+                    }
                 }
-            }
 
-            parseSimilarQuestionsResponse(builder.toString())
-                ?: throw IllegalStateException("Received an invalid response from AI service")
+                parseSimilarQuestionsResponse(builder.toString())
+                    ?: throw IllegalStateException("Received an invalid response from AI service")
+            }
         }
 
     private fun buildHintPrompt(question: String, hintLevel: Int): String =
@@ -175,6 +188,24 @@ $concept
         } catch (e: Exception) {
             Result.failure(e)
         }
+
+    private fun safeCallExceptionToResult(e: Exception): Result<HintResponse> {
+        return when (e) {
+            is UnknownHostException -> Result.failure(IllegalStateException("Network connection lost", e))
+            is SocketTimeoutException -> Result.failure(IllegalStateException("Unable to reach AI service", e))
+            is OpenAiHttpException -> {
+                val message = when (e.code) {
+                    401, 403 -> "AI service authorization error"
+                    404 -> "AI service configuration error (invalid endpoint)"
+                    429 -> "Too many requests. Please try again shortly."
+                    in 500..599 -> "Unable to reach AI service"
+                    else -> "Unable to reach AI service"
+                }
+                Result.failure(IllegalStateException(message, e))
+            }
+            else -> Result.failure(e)
+        }
+    }
 
     private suspend fun retryWithBackoff(block: suspend () -> Unit) {
         val maxAttempts = 4

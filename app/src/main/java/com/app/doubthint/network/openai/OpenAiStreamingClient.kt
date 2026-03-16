@@ -19,6 +19,9 @@ class OpenAiStreamingClient(
         model: String,
         input: String
     ): Sequence<String> {
+        if (apiKey.isBlank()) {
+            throw IllegalStateException("AI service authorization error")
+        }
         val url = "https://api.openai.com/v1/responses"
         val bodyJson = JsonObject().apply {
             addProperty("model", model)
