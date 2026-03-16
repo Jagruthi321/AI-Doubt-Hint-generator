@@ -1,0 +1,4 @@
+Follow SOLID principles
+Prefer immutable state
+Use sealed classes for state and intent
+Avoid large classes

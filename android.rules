@@ -1,0 +1,4 @@
+Use MVVM/MVI architecture
+Use Jetpack Compose for UI
+Use ViewModel for state management
+Follow Android clean architecture

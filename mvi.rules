@@ -1,0 +1,3 @@
+Use Intent → ViewModel → State pattern
+UI observes State
+ViewModel processes Intents
