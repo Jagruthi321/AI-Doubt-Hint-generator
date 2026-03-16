@@ -1,6 +1,8 @@
 package com.app.doubthint.repository
 
 import com.app.doubthint.model.HintResponse
+import com.app.doubthint.model.SimilarQuestionResponse
+import com.app.doubthint.model.SolutionResponse
 import com.app.doubthint.network.NetworkModule
 import com.app.doubthint.network.openai.OpenAiHttpException
 import com.app.doubthint.network.openai.OpenAiStreamingClient
@@ -22,30 +24,58 @@ class HintRepository(
 ) {
 
     fun streamHint(question: String, hintLevel: Int): Flow<Result<HintResponse>> = flow {
-        emit(Result.success(HintResponse(concept = "", hint = "", formula = "")))
-
         val prompt = buildHintPrompt(question = question, hintLevel = hintLevel)
         val builder = StringBuilder()
-        var lastConcept: String? = null
-        var lastFormula: String? = null
+        var lastConcept = ""
+        var lastFormula = ""
 
         retryWithBackoff {
             for (delta in streamingClient.streamResponsesApiText(model = "gpt-4.1-mini", input = prompt)) {
                 builder.append(delta)
                 val parsed = parseHintResponseBestEffort(builder.toString())
                 if (parsed != null) {
-                    lastConcept = parsed.concept.ifBlank { lastConcept }
-                    lastFormula = parsed.formula.ifBlank { lastFormula }
-                    emit(Result.success(parsed.copy(
-                        concept = parsed.concept.ifBlank { lastConcept.orEmpty() },
-                        formula = parsed.formula.ifBlank { lastFormula.orEmpty() }
-                    )))
+                    if (parsed.concept.isNotBlank()) lastConcept = parsed.concept
+                    if (parsed.formula.isNotBlank()) lastFormula = parsed.formula
+
+                    val concept = parsed.concept.ifBlank { lastConcept }
+                    val formula = parsed.formula.ifBlank { lastFormula }
+                    if (parsed.hint.isNotBlank()) {
+                        emit(Result.success(parsed.copy(concept = concept, formula = formula)))
+                    }
                 }
             }
         }
     }
 
-    // TODO: Implement streamSolution / streamSimilarQuestions using the same approach.
+    suspend fun getSolution(question: String): Result<SolutionResponse> =
+        safeCallSuspend {
+            val prompt = buildSolutionPrompt(question)
+            val builder = StringBuilder()
+
+            retryWithBackoff {
+                for (delta in streamingClient.streamResponsesApiText(model = "gpt-4.1-mini", input = prompt)) {
+                    builder.append(delta)
+                }
+            }
+
+            parseSolutionResponse(builder.toString())
+                ?: throw IllegalStateException("Received an invalid response from AI service")
+        }
+
+    suspend fun getSimilarQuestions(concept: String): Result<SimilarQuestionResponse> =
+        safeCallSuspend {
+            val prompt = buildSimilarQuestionsPrompt(concept)
+            val builder = StringBuilder()
+
+            retryWithBackoff {
+                for (delta in streamingClient.streamResponsesApiText(model = "gpt-4.1-mini", input = prompt)) {
+                    builder.append(delta)
+                }
+            }
+
+            parseSimilarQuestionsResponse(builder.toString())
+                ?: throw IllegalStateException("Received an invalid response from AI service")
+        }
 
     private fun buildHintPrompt(question: String, hintLevel: Int): String =
         """
@@ -64,6 +94,24 @@ Question:
 $question
         """.trimIndent()
 
+    private fun buildSolutionPrompt(question: String): String =
+        """
+You are a tutor for Physics and Mathematics numerical problems.
+Return ONLY valid JSON with keys: stepByStepSolution, conceptExplanation, commonMistakes.
+
+Question:
+$question
+        """.trimIndent()
+
+    private fun buildSimilarQuestionsPrompt(concept: String): String =
+        """
+You are a tutor for Physics and Mathematics numerical problems.
+Return ONLY valid JSON with key: questions (an array of 2-3 strings).
+
+Concept:
+$concept
+        """.trimIndent()
+
     private fun parseHintResponseBestEffort(text: String): HintResponse? {
         // Best-effort extraction of the first {...} block as JSON.
         val start = text.indexOf('{')
@@ -78,6 +126,55 @@ $question
             HintResponse(concept = concept, hint = hint, formula = formula)
         }.getOrNull()
     }
+
+    private fun parseSolutionResponse(text: String): SolutionResponse? {
+        val start = text.indexOf('{')
+        val end = text.lastIndexOf('}')
+        if (start < 0 || end <= start) return null
+        val json = text.substring(start, end + 1)
+        return runCatching {
+            val obj = com.google.gson.JsonParser.parseString(json).asJsonObject
+            val step = obj.get("stepByStepSolution")?.asString ?: ""
+            val concept = obj.get("conceptExplanation")?.asString ?: ""
+            val mistakes = obj.get("commonMistakes")?.asString ?: ""
+            SolutionResponse(stepByStepSolution = step, conceptExplanation = concept, commonMistakes = mistakes)
+        }.getOrNull()
+    }
+
+    private fun parseSimilarQuestionsResponse(text: String): SimilarQuestionResponse? {
+        val start = text.indexOf('{')
+        val end = text.lastIndexOf('}')
+        if (start < 0 || end <= start) return null
+        val json = text.substring(start, end + 1)
+        return runCatching {
+            val obj = com.google.gson.JsonParser.parseString(json).asJsonObject
+            val arr = obj.getAsJsonArray("questions") ?: return@runCatching null
+            val questions = arr.mapNotNull { el -> el?.takeIf { it.isJsonPrimitive }?.asString }.filter { it.isNotBlank() }
+            SimilarQuestionResponse(questions = questions)
+        }.getOrNull()
+    }
+
+    private suspend inline fun <T> safeCallSuspend(crossinline block: suspend () -> T): Result<T> =
+        try {
+            Result.success(block())
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: UnknownHostException) {
+            Result.failure(IllegalStateException("Network connection lost", e))
+        } catch (e: SocketTimeoutException) {
+            Result.failure(IllegalStateException("Unable to reach AI service", e))
+        } catch (e: OpenAiHttpException) {
+            val message = when (e.code) {
+                401, 403 -> "AI service authorization error"
+                404 -> "AI service configuration error (invalid endpoint)"
+                429 -> "Too many requests. Please try again shortly."
+                in 500..599 -> "Unable to reach AI service"
+                else -> "Unable to reach AI service"
+            }
+            Result.failure(IllegalStateException(message, e))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 
     private suspend fun retryWithBackoff(block: suspend () -> Unit) {
         val maxAttempts = 4
