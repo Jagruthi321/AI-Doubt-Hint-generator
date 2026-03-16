@@ -4,7 +4,6 @@ You are implementing the project defined in spec.md.
 
 Rules:
 1. Read spec.md before writing any code.
-2. Complete ONLY the first unchecked task in this todo list.
 3. After completing the task:
     - implement the code
     - explain the changes
@@ -22,17 +21,17 @@ Follow the sections sequentially to implement the project from setup to deployme
 \# 1\. Project Setup
 
 \#\# Environment Setup  
-\- \[ \] Install latest \*\*Android Studio\*\*  
-\- \[ \] Install \*\*Android SDK (API 34+)\*\*  
-\- \[ \] Verify \*\*Kotlin support\*\*  
-\- \[ \] Configure emulator or physical device for testing
+\- \[x\] Install latest \*\*Android Studio\*\*  
+\- \[x\] Install \*\*Android SDK (API 34+)\*\*  
+\- \[x\] Verify \*\*Kotlin support\*\*  
+\- [x] Configure emulator or physical device for testing
 
 \#\# Project Initialization  
-\- \[ \] Create new Android project  
-\- \[ \] Select \*\*Empty Compose Activity\*\*  
-\- \[ \] Set language to \*\*Kotlin\*\*  
-\- \[ \] Set \*\*Minimum SDK (recommended: API 24+)\*\*  
-\- \[ \] Enable \*\*Jetpack Compose\*\*
+\- [x] Create new Android project  
+\- [x] Select **Empty Compose Activity**  
+\- [x] Set language to **Kotlin**  
+\- [x] Set **Minimum SDK (recommended: API 24+)**  
+\- [x] Enable **Jetpack Compose**
 
 \---
 
@@ -63,14 +62,14 @@ com.app.doubthint
 
 Checklist:
 
-\- \[ \] Create UI package  
-\- \[ \] Create Intent package  
-\- \[ \] Create State package  
-\- \[ \] Create ViewModel package  
-\- \[ \] Create Repository package  
-\- \[ \] Create Network package  
-\- \[ \] Create Model package  
-\- \[ \] Create Utils package
+\- [x] Create UI package  
+\- [x] Create Intent package  
+\- [x] Create State package  
+\- [x] Create ViewModel package  
+\- [x] Create Repository package  
+\- [x] Create Network package  
+\- [x] Create Model package  
+\- [x] Create Utils package
 
 \---
 
@@ -79,25 +78,25 @@ Checklist:
 Add dependencies to \*\*build.gradle\*\*
 
 \#\#\# Core Dependencies  
-\- \[ \] Kotlin Standard Library  
-\- \[ \] Jetpack Compose UI  
-\- \[ \] Compose Material 3  
-\- \[ \] Compose Navigation
+\- [x] Kotlin Standard Library  
+\- [x] Jetpack Compose UI  
+\- [x] Compose Material 3  
+\- [x] Compose Navigation
 
 \#\#\# Architecture  
-\- \[ \] Lifecycle ViewModel  
-\- \[ \] Kotlin Coroutines  
-\- \[ \] Flow support
+\- [x] Lifecycle ViewModel  
+\- [x] Kotlin Coroutines  
+\- [x] Flow support
 
 \#\#\# Networking  
-\- \[ \] Retrofit  
-\- \[ \] OkHttp  
-\- \[ \] Gson / Moshi converter
+\- [x] Retrofit  
+\- [x] OkHttp  
+\- [x] Gson / Moshi converter
 
 \#\#\# Testing  
-\- \[ \] JUnit  
-\- \[ \] Mockito  
-\- \[ \] Espresso
+\- [x] JUnit  
+\- [x] Mockito  
+\- [x] Espresso
 
 \---
 
